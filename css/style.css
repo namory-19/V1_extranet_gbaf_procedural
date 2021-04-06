@@ -1,0 +1,460 @@
+/* -------- réglages généraux -------- */
+
+*   {
+    box-sizing: border-box;
+    }
+
+html {
+        font-size: 62.5%;
+        font-family: Helvetica, sans-serif;
+    }
+
+body
+    {
+        background-image: url(../img/fond_gbaf.jpg);
+        background-attachment: fixed;
+        background-position-y: -30rem;
+    }
+
+h1
+   {
+       background-color:#f32525 ;
+       color: white;
+       text-transform: uppercase;
+       font-size: 2rem;
+       font-weight: bolder;
+       display: inline;
+       padding: 1rem;
+   }
+
+h1 + p
+    {
+        margin-top:3rem;
+    }
+
+h2
+   {
+    background-color:#f32525 ;
+    color: white;
+    text-transform: uppercase;
+    font-size: 1.6rem;
+    font-weight: bolder;
+    display: inline;
+    padding: 1rem;
+    line-height: 3rem;
+   }
+
+h2 + p
+    {
+        margin-top:3rem;
+    }
+
+h3
+   {    
+    color:#f32525 ;
+    text-transform: uppercase;
+    font-weight:bold;
+   }
+
+p
+{
+    color: #070707;
+    text-align: justify;
+    font-size: 1.4rem;
+}
+
+ul li
+{
+    color: #070707;
+    font-size: 1.4rem;
+}
+
+a:link, a:visited
+{
+    color: #f32525;
+    text-decoration: none;
+}
+
+a:hover
+{
+    color: #070707;
+    text-decoration: none;
+}
+
+
+
+/* -------- header -------- */
+
+header
+{
+   width:950px;
+   margin:auto;
+   height:auto;
+   background-color: white;
+   padding:15px;
+   display:flex;
+   justify-content: space-between;
+   border-bottom: solid 1px #070707;
+   margin-top: 20px;
+}
+
+.container_logo_gabf
+{
+    width: 35%;
+    display:flex;
+}
+
+.container_logo_gabf img
+{
+    width: 70%;
+    height: auto;
+}
+
+.bloc_user
+{
+    display:inline-flex; 
+    align-items: center;
+}
+
+.icon_user
+{
+    margin-right:1rem;
+}
+
+.icon_user img
+{
+    width: 100%;
+    height: 50px;
+}
+
+/* -------- section --------*/
+
+section
+{
+    width:950px;
+    margin:auto;
+    height:auto;
+    background-color: white; 
+    padding:15px;
+}
+
+/*  home */
+
+.home_about_gabf
+{
+    padding-top:30px;
+    border-bottom: solid 1px #070707;
+}
+
+.home_ban_gbaf
+{
+    width: 100%;
+    height: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.home_ban_gbaf img
+{
+    width: 100%;
+    height: auto;
+}
+
+.home_about_actors
+{
+    padding-top:30px;
+}
+
+.home_bloc_actors_container
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color:#d1d1d9 ;
+}
+
+.home_logo_bloc_actors
+{
+    width: 30%;
+}
+
+.home_logo_bloc_actors img
+{
+    width: 100%;
+    height: 4rem;
+}
+
+.home_text_bloc_actors
+{
+    width: 50%;
+}
+
+.home_read_more_bloc_actors
+{
+    width: 15%;
+    display: flex;
+    justify-content: space-around;
+
+}
+
+.home_read_more_bloc_actors_button
+{
+    background-color:#f32525 ;
+    color: white;
+    border-radius: 0.5rem;
+    width: 10rem;
+    text-align: center;
+    font-size: 1.5rem;
+    padding: 1rem;
+}
+
+.home_read_more_bloc_actors_button:hover
+{
+    background-color:#070707;
+}
+
+.home_read_more_bloc_actors_button a
+{
+    color: white;
+}
+
+
+/*  page acteurs */
+
+.logo_page_actors
+{
+    margin-top: 1.5rem;
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.logo_page_actors img
+{
+    width: 40%;
+    height: auto;
+    border: solid 1px #070707;
+}
+
+.commentaire_container
+{
+    border: dotted 1px #070707;
+    padding: 2rem 2rem 0rem 2rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+
+.bloc_header_comment
+{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.new_comment
+{
+    margin-left: auto;
+}
+
+.counterlike_button
+{
+    margin-left:1rem;
+    background-color:#f32525 ;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: flex;
+}
+
+.counterlike_button p
+{
+    color: white;
+    font-size: 1rem;
+    margin: 0rem;
+}
+
+.like
+{
+    display: flex;
+    margin-right: 1rem;
+    align-items: center;
+}
+
+.like img
+{
+    width: 22px;
+    height: auto;
+}
+
+.unlike
+{
+    display: flex;
+    align-items: center;
+}
+
+.unlike img
+{
+    width: 22px;
+    height: auto;
+}
+
+.comment_button
+{
+    background-color:#f32525 ;
+    color: white;
+    border-radius: 0.5rem;
+    width: 10rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.comment_button:hover
+{
+    background-color:#070707;
+}
+
+.bloc_comment
+{
+    background-color: #d1d1d9;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border-radius: 1rem;
+}
+
+/* -------- Connexion /Inscription --------*/
+.page_connexion_inscription
+{
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+.page_connexion_inscription p
+{
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+.h1_connexion_inscription
+{
+    margin-top: 3rem;
+    margin-bottom: 5rem;
+}
+
+.formulaire_connexion_inscription
+{
+
+    margin-bottom: 5rem;
+}
+
+.button_submit
+{
+    background-color:#f32525 ;
+    color: white;
+    font-size: 1.4rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.button_submit:hover
+{
+    background-color:#070707;
+    cursor: pointer;
+}
+
+/* -------- footer --------*/
+
+footer
+{
+    width:950px;
+    margin:auto;
+    height:auto;
+    background-color: #070707; 
+    padding:15px;
+}
+
+footer p
+{
+    text-align: center;
+    color: white;
+}
+
+footer a
+{
+    color: white !important;
+}
+
+footer a:hover
+{
+    color:#f32525 !important;
+}
+
+/* -------- responsive --------*/
+
+@media all and (max-width: 1024px)
+{
+    section, footer, header
+    {
+        width:auto;
+    }
+
+    h1
+    {
+        line-height: 3rem;
+    }
+
+    header
+    {
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .container_logo_gabf img
+    {
+        width: 100%;
+    }
+  
+    .home_bloc_actors_container
+    {
+        flex-direction: column;
+        padding: 2rem;
+    }
+    
+    .home_logo_bloc_actors
+    {
+        width: 50%;
+    }
+
+    .home_text_bloc_actors
+    {
+        width: 100%;
+    }
+
+    .home_read_more_bloc_actors
+    {
+        width: 100%;
+    }
+
+    .logo_page_actors img
+    {
+        width: 70%;
+    }
+
+    .bloc_header_comment
+    {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .nb_comment
+    {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .new_comment
+    {
+        margin: auto;
+    }
+}
