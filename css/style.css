@@ -361,6 +361,33 @@ section
     cursor: pointer;
 }
 
+.msg_success
+{
+    margin-bottom: 3rem;
+}
+
+.msg_success p
+{
+    color: #4F8A10;
+	background-color: #DFF2BF;
+    padding: 1rem;
+    display: inline;
+}
+
+.msg_error
+{
+    margin-bottom: 3rem;
+}
+
+.msg_error p
+{
+    color: #D8000C;
+    background-color: #FFBABA;
+    padding: 1rem;
+    display: inline;
+}
+
+
 /* -------- footer --------*/
 
 footer
