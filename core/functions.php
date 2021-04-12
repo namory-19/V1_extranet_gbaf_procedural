@@ -86,3 +86,69 @@ function register_user()
         }
     }  
 }
+//
+//
+// fonction permettant le fonctionnement du formulaire de connexion à l'extranet coté utilisateur.
+//
+//
+
+function connexion_user()
+{
+    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+    if (isset ($_POST['username']) && ($_POST['password'])) // vérifie si les variables sont déclarées et sont différentes de null.
+    {
+        $reponse = $bdd->prepare('SELECT * FROM user WHERE username = :username'); // va chercher dans la BDD la ligne corresponsant au username entré dan sle formuliare de connexion
+        $reponse->execute(array(
+            'username' => $_POST['username'],
+        ));
+        $donnees = $reponse->fetch();
+     
+        if ($donnees)
+        {
+            $nom = $donnees['nom'];
+            $_SESSION['nom'] = $nom;
+            $prenom = $donnees['prenom'];
+            $_SESSION['prenom'] = $prenom;
+            $username = $donnees['username'];
+            $_SESSION['username'] = $username;
+            $id_user = $donnees['id'];
+            $_SESSION['id_user'] = $id_user;
+
+            $passcheck = password_verify($_POST['password'], $donnees['password']);
+
+            if ($passcheck)
+            {
+                header('Location: accueil.php');
+            }
+            else
+            {
+                ?> 
+                <div class="msg_error"> <!-- message pour informer l'utilisateur que le mot de passe n'est pas bon-->
+                <p>Votre mot de passe n'est pas bon, merci de corriger votre saisie.</p>
+                </div>
+                <br>
+                <?php  
+            }
+        }
+        else
+        {
+            ?> 
+            <div class="msg_error"> <!-- message pour informer l'utilisateur que l'identifiant n'est pas bon-->
+            <p>Votre identfiant n'est pas bon, merci de corriger votre saisie.</p>
+            </div>
+            <br>
+            <?php      
+        }
+    }
+}
+
+//
+//
+// fonction permettant la remontée des données nécessaires à l'affichage du bloc utilisateur dans le header (nom, prenom, avatar).
+//
+//
+
+function view_block_header_user()
+{
+
+}
