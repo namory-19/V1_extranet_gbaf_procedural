@@ -1,8 +1,12 @@
 <?php
 session_start(); // On démarre la session pour récupérer les informations destinés au pré-remplissage de la page de connexuon (suite à la création du compte)
-if (isset($_POST['username'])) // si le champ username du formuliare comprend des données alors,
+if (isset($_POST['username'])) // si le champ username du formulaire comprend des données alors,
 {
     $_SESSION['username'] = $_POST['username']; // on ajoute à la session les données liées à l'identifiant récupérées via le formulaire
+}
+if (isset($_SESSION['id_user'])) // permet de contrôler si l'utlisteur est connecté en vérifiant si l'id_user est présent en session
+{
+    header('Location: accueil.php'); // si oui, redirige vers la page d'acceuil (inutile d'afficher la page d'inscription à un utilisateur connecté)
 }
 ?>
 <!DOCTYPE html>

@@ -320,6 +320,36 @@ section
     border-radius: 1rem;
 }
 
+/* -------- Mon compte --------*/
+
+.infos_perso
+{
+    margin-top: 5rem;
+}
+
+.separator
+{
+    margin-top: 3rem;
+    border-top:#070707 1px dashed;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+form
+{
+    text-align: center;
+    font-size: 1.4rem;
+    line-height: 2rem;
+}
+
+.h1_moncompte_center
+{
+    margin-top: 3rem;
+    margin-bottom: 5rem;
+    text-align: center;
+}
+
 /* -------- Connexion /Inscription --------*/
 .page_connexion_inscription
 {
@@ -341,7 +371,6 @@ section
 
 .formulaire_connexion_inscription
 {
-
     margin-bottom: 5rem;
 }
 

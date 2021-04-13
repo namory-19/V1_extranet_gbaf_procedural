@@ -1,11 +1,16 @@
 <?php
 session_start(); // On démarre la session pour récupérer les informations destinés au pré-remplissage de la page de connexuon (suite à la création du compte)
-if (isset($_POST['username']) && ($_POST['password'])) // si le champ username et password du formulaire comprend des données alors,
+if (isset($_POST['username']) && ($_POST['password'])) // si le champ username et password du formulaire comprend des données
 {
-    if (isset($_POST['remember_me']))
+    if (isset($_POST['remember_me'])) // si la check box remember me est cochée
     {
         setcookie('username', $_POST['username'], time() + 365*24*3600, null, null, false, true); // on ajoute la variable username récupéré dans le champ dédié du formulaire de connexion dans la variable username du cookie
         setcookie('password', $_POST['password'], time() + 365*24*3600, null, null, false, true); // on ajoute la variable password récupéré dans le champ dédié du formulaire de connexion dans la variable password du cookie
+    }
+    else // si elle n'est plus ou pas cochée
+    {
+        setcookie('username', $_POST['username'], time() -3600, null, null, false, true); // on supprime le cookie
+        setcookie('password', $_POST['password'], time() -3600, null, null, false, true); // on supprime le cookie
     }
 }  
 ?>
@@ -27,6 +32,8 @@ if (isset($_POST['username']) && ($_POST['password'])) // si le champ username e
             </h1>
         </div>
         <div class="formulaire_connexion_inscription">
+        <?php var_dump($_SESSION); ?>
+        <?php var_dump($_COOKIE); ?>
             <form action="connexion.php" method="post">
                 <div class="formulaire_identifiant">
                 <label for="identifiant">Identifiant : </label>

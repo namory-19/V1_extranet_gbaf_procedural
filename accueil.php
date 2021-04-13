@@ -1,3 +1,10 @@
+<?php
+session_start(); // On démarre la session pour récupérer les informations destinées au contôle de connexion 
+if (!isset($_SESSION['id_user'])) // On contrôle si la session est démarré en vérifiant qu'elle contient l'id_user (récupéré à la connexion)
+{
+    header('Location: connexion.php'); // sinon retour à la page de connexion
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
