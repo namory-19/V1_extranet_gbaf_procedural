@@ -350,6 +350,24 @@ form
     text-align: center;
 }
 
+.avatar_img 
+{
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.avatar_img p
+{
+    text-align: center;
+}
+
+.avatar_img img
+{
+
+    width: 250px;
+    height: auto;
+}
+
 /* -------- Connexion /Inscription --------*/
 .page_connexion_inscription
 {

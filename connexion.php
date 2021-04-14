@@ -1,5 +1,9 @@
 <?php
 session_start(); // On démarre la session pour récupérer les informations destinés au pré-remplissage de la page de connexuon (suite à la création du compte)
+if (isset($_SESSION['id_user'])) // permet de contrôler si l'utlisteur est connecté en vérifiant si l'id_user est présent en session
+{
+    header('Location: accueil.php'); // si oui, redirige vers la page d'acceuil (inutile d'afficher la page d'inscription à un utilisateur connecté)
+}
 if (isset($_POST['username']) && ($_POST['password'])) // si le champ username et password du formulaire comprend des données
 {
     if (isset($_POST['remember_me'])) // si la check box remember me est cochée
@@ -32,8 +36,6 @@ if (isset($_POST['username']) && ($_POST['password'])) // si le champ username e
             </h1>
         </div>
         <div class="formulaire_connexion_inscription">
-        <?php var_dump($_SESSION); ?>
-        <?php var_dump($_COOKIE); ?>
             <form action="connexion.php" method="post">
                 <div class="formulaire_identifiant">
                 <label for="identifiant">Identifiant : </label>

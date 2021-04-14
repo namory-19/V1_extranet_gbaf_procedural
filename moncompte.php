@@ -54,7 +54,7 @@ require_once('core/functions.php')
                         <input type="email" id="mail" name="mail" value="<?php echo $_SESSION['mail'];?>" onpaste="return false;" required> <!-- champ pour l'adresse mail avec l'interdiction de coller une adresse mail dedans-->
                     </div>
                     <br>
-                <input type="submit" value="Modifier" class="button_submit">
+                <input id="ancre_name" type="submit" value="Modifier" class="button_submit">
                 <?php 
                 modify_user(); // va chercher la fonction qui controle le formulaire d'inscription dans core/functions.php
                 ?>
@@ -78,13 +78,19 @@ require_once('core/functions.php')
                     </div>
                     <br>
                     <div class="pass">
-                        <label for="pass"><strong>Mot de passe (Minimum : 8 à 15 caractères, 1 majuscule, 1 miniscule, 1 chiffre, 1 caractère spécial ) :  </strong></label>
+                        <label for="pass"><strong>Mot de passe actuel : </strong></label>
+                        <br>
+                        <input type="password" id="actualpass" name="actualpass" pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_])([-+!*$@%_\w]{8,15})$" required> <!-- champ pour le mot de passe avec regex pour restriendre le choix à des conditions particlières -->
+                    </div>
+                    <br>
+                    <div class="pass">
+                        <label for="pass"><strong>Nouveau mot de passe (Minimum : 8 à 15 caractères, 1 majuscule, 1 miniscule, 1 chiffre, 1 caractère spécial ) :  </strong></label>
                         <br>
                         <input type="password" id="pass" name="password" pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_])([-+!*$@%_\w]{8,15})$" required> <!-- champ pour le mot de passe avec regex pour restriendre le choix à des conditions particlières -->
                     </div>
                     <br>
                     <div class="repass">
-                        <label for="repass"><strong>Retapez votre mot de passe :  </strong></label>
+                        <label for="repass"><strong>Retapez votre nouveau mot de passe :  </strong></label>
                         <br>
                         <input type="password" id="repass" name="repassword" pattern="^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_])([-+!*$@%_\w]{8,15})$" required> <!-- champ pour la vérification du mot de passe avec regex pour restriendre le choix à des conditions particlières -->
                     </div>
@@ -139,8 +145,33 @@ require_once('core/functions.php')
             Mon avatar
         </h2>
         <p>
-            Vous trouverez ci-dessous votre image de profil actuelle. Il vous est également possible de la changer ou de la supprimer.
+            Vous trouverez ci-dessous votre image de profil actuelle. Il vous est possible de la changer autant de fois que vous désirez.
         </p>
+            <div class="avatar_img">
+            <p>
+            <strong>Votre image de profil actuelle est : </strong>
+            </p>
+            <?php 
+            view_img_avatar(); // va chercher la fonction qui controle l'affichage de l'avatar dans core/functions.php
+            $avatar_img=view_img_avatar();
+            ?>
+            <img id="ancre_avatar" src="<?php echo $avatar_img ?>" alt="image profil">
+            <br>
+            </div>
+        <div class="formulaire_infos_perso">
+            <form action="moncompte.php" method="post" enctype="multipart/form-data"> <!-- forumulaire d'envoie d'images'-->
+                    <div class="send_image">
+                        <label for="avatar"><strong>Envoyer une nouvelle image <br>(type autorisé : png, gif, jpg, jpeg et poids <= 1mo) :  </strong><br></label> <!-- champ pour la réponse à la question secrète -->
+                        <br>
+                        <input type="file" id="avatar" name="avatar" required>
+                    </div>
+                    <br>
+                <input type="submit" value="Envoyer" class="button_submit">
+                <?php 
+                add_modify_img_avatar(); // va chercher la fonction qui controle l'ajout ou la modification d'image dans core/functions.php
+                ?>
+            </form>
+        </div>
     </div>
     <div class="separator"></div>
     <div class="infos_perso">
