@@ -1,6 +1,35 @@
 <?php
-require_once("core/database.php"); // appelle le fichier permettant la connexion à la BDD.
+require_once(dirname(__FILE__) . '/database.php');  // appelle le fichier permettant la connexion à la BDD.
 
+//
+//
+// fonction permettant de supprimer la session
+//
+//
+
+function kill_session()
+{
+// Suppression des variables de session et de la session
+$_SESSION = array();
+session_destroy();
+
+header('Location: /connexion.php');
+
+}
+
+//
+//
+// fonction permettant de se deconnecter et de supprimer la session
+//
+//
+
+function disconnect()
+{
+    if (isset($_GET['disconnect']))
+        {
+            kill_session();
+        }
+}
 
 //
 //
@@ -131,23 +160,40 @@ function connexion_user()
             $_SESSION['reponse'] = $reponse;
             $question = $donnees['question'];
             $_SESSION['question'] = $question;
+            $usergroup = $donnees['usergroup'];
+            $_SESSION['usergroup'] = $usergroup;
+            $active = $donnees['active'];
+            $_SESSION['active'] = $active;
 
             $passcheck = password_verify($_POST['password'], $donnees['password']);
-
-            if ($passcheck)
+            if ($donnees['active'] === '1')
             {
-                header('Location: accueil.php');
+                if ($passcheck)
+                {
+                    header('Location: index.php');
+                }
+                else
+                {
+                    ?> 
+                    <br>
+                    <br>
+                    <div class="msg_error"> <!-- message pour informer l'utilisateur que le mot de passe n'est pas bon-->
+                    <p>Votre mot de passe n'est pas bon, merci de corriger votre saisie.</p>
+                    </div>
+                    <br>
+                    <?php  
+                }
             }
             else
             {
                 ?> 
                 <br>
                 <br>
-                <div class="msg_error"> <!-- message pour informer l'utilisateur que le mot de passe n'est pas bon-->
-                <p>Votre mot de passe n'est pas bon, merci de corriger votre saisie.</p>
+                <div class="msg_error"> <!-- message pour informer l'utilisateur que son compte est désactivé-->
+                <p>Votre compte a été désactivé par un administrateur, merci de contacter ce dernier à <a href="mailto:admin@gbaf.fr">admin@gbaf.fr</a></p> 
                 </div>
                 <br>
-                <?php  
+                <?php
             }
         }
         else
@@ -378,11 +424,11 @@ function view_img_avatar()
 
     if ($donnees['url_img_avatar'] == false) // si l'url de l'avatar en bdd n'est pas présente
     {
-        $avatar_img = 'img/icon_user.png'; // mettre une image par défaut
+        $avatar_img = '../img/icon_user.png'; // mettre une image par défaut
     }
     else
     {
-        $avatar_img = 'img/avatar/'.$donnees['url_img_avatar']; // va chercher l'url pour afficher l'image correspondante à l'utilisateur
+        $avatar_img = '../img/avatar/'.$donnees['url_img_avatar']; // va chercher l'url pour afficher l'image correspondante à l'utilisateur
     }
     $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
    return $avatar_img;
@@ -452,5 +498,168 @@ function add_modify_img_avatar()
             <br>
             <?php      
         }
+    }
+}
+
+
+//
+//
+// fonction permettant de réduire la longueur d'un texte
+//
+//
+
+function textebrut($texte, $nb){
+    $txt_brut=strip_tags($texte);
+    if ( strlen($texte) <= $nb )
+        return $txt_brut;
+    if ( ($pos_espace = strpos($txt_brut,' ',$nb)) === FALSE ) 
+        return $txt_brut;
+    $txt_brut = substr($txt_brut,0,$pos_espace);  
+    return $txt_brut;
+}
+
+//
+//
+// fonction permettant d'afficher la liste des article partenaire avec une pagonation en bas de page
+//
+//
+
+function select_actors_article()
+{
+    if(isset($_GET['page']) && !empty($_GET['page']))
+        {
+            $current_page = $_GET['page'];
+        }
+        else
+        {
+            $current_page = 1;
+        }
+        $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+        $reponse = $bdd->query('SELECT COUNT(*) AS nb_fiches FROM actors');
+        $donnees = $reponse->fetch();
+        $nb_fiches_page = 5;
+        $premiere_fiche_desc_limit = ($current_page * $nb_fiches_page) - $nb_fiches_page; // donne la premiere fiche  - permet de renseigner le prmier chiffre de la DESC LIMIT
+        $nb_page_fiches = ceil($donnees['nb_fiches']/$nb_fiches_page); // calcule le nombre de page par fiche en divisant le nombre de fiche totale par le nombre de fiche par page     
+        $reponse->closeCursor();
+    
+    $reponse = $bdd->query('SELECT id, titre, texte, url_post, url_img_actors FROM actors ORDER BY id DESC LIMIT ' .$premiere_fiche_desc_limit.','.$nb_fiches_page); //
+
+    while ($donnees=$reponse->fetch())
+    {
+        ?>
+        <div class="home_bloc_actors_container">
+            <div class="home_logo_bloc_actors">
+                    <img src="<?php echo $donnees['url_img_actors']?>" alt="logo <?php echo $donnees['titre']?>">
+            </div>
+            <div class="home_text_bloc_actors">
+                <h3>
+                <?php echo $donnees['titre']
+                ?>
+                </h3>
+                <p>
+                <?php echo textebrut($donnees['texte'], 130);
+                ?> ...
+                </p>
+            </div>
+            <div class="home_read_more_bloc_actors">
+                <a href="actors.php?url_post=<?php echo $donnees['url_post']?>" target="_blank" rel="noopener noreferrer"><div class="home_read_more_bloc_actors_button">Lire la suite</div></a>   
+            </div>
+        </div>
+    <?php  
+    }
+    ?>
+    <div class="pagination">
+    <?php 
+        for ($page_fiches = 1; $page_fiches <= $nb_page_fiches; $page_fiches++)
+        {
+            echo '<a href="index.php?page='.$page_fiches.'#pagination_go">page ' .$page_fiches .'</a> | ';
+        }
+        $reponse->closeCursor();
+    ?>
+    </div>
+    <?php
+}
+
+//
+//
+// fonction permettant d'afficher une fiche acteur
+//
+//
+
+function view_actors_article()
+{
+    if (isset($_GET['url_post']))
+    {
+        $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+        $reponse = $bdd->prepare('SELECT id, titre, url_website, texte, url_post, url_img_actors, meta_description, meta_keywords, user_id_post, DATE_FORMAT(date_post, \'%d/%m/%Y à %Hh%imin%ss\') FROM actors WHERE url_post = :url_post');
+        $reponse->execute(array(
+            'url_post' => $_GET['url_post']));
+        $donnees_actors = $reponse->fetch();
+        return $donnees_actors;
+        $reponse->closeCursor();
+    }
+    else
+    {
+        ?> 
+        <br>
+        <br>
+        <div class="msg_error"> <!-- message pour informer que la page n'existe pas-->
+        <p>La fiche acteur / partenaire que vous cherchez n'existe pas, <a href="/index.php" target="_blank" rel="noopener noreferrer">cliquez ici</a> pour vous rendre à l'accueil.</p>        </div>
+        <br>
+        <?php   
+    }
+}
+
+
+//
+//
+// fonction permettant d'afficher le nombre de commentaire
+//
+//
+
+function nbr_comment()
+{
+    $donnees_actors=view_actors_article();
+    $actors_id=$donnees_actors['id'];
+    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_comment FROM comment WHERE actors_id = :actors_id');
+    $reponse->execute(array(
+        'actors_id' => $actors_id
+    ));
+    $nb_comment = $reponse->fetch();
+    if ($nb_comment === false)
+    {
+        $nb_comment=0;
+    }
+    return $nb_comment;
+    $reponse->closeCursor();
+}
+
+//
+//
+// fonction permettant de soumettre un nouveau commentaire
+//
+//
+
+function submit_comment()
+{
+    if (isset($_POST['commentaire']))
+    {
+        $donnees_actors=view_actors_article();
+        $actors_id=$donnees_actors['id'];
+        $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+        $reponse = $bdd->prepare('INSERT INTO comment(commentaire, date_commentaire, user_id_comment, actors_id) VALUES(:commentaire, NOW(), :user_id_comment, :actors_id)'); // insére tous les informations du formulaire en base dans la table "user"
+        $reponse->execute(array(
+            'commentaire' => $_POST['commentaire'],
+            'user_id_comment' => $_SESSION['id_user'],
+            'actors_id' => $actors_id
+        ));
+        $reponse->closeCursor();
+        ?>
+        <br>
+        <br>
+        <div class="msg_success"><!-- message pour informer l'utilisateur que l'image a bien été uploadé-->
+        <p>Votre comentaire a bien été envoyé!</p>
+        </div><?php
     }
 }

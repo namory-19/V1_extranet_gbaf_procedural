@@ -1,8 +1,8 @@
 <?php
-session_start(); // On démarre la session pour récupérer les informations destinés au pré-remplissage de la page de connexuon (suite à la création du compte)
+session_start(); // On démarre la session pour récupérer les informations destinés au pré-remplissage de la page de connexion (suite à la création du compte)
 if (isset($_SESSION['id_user'])) // permet de contrôler si l'utlisteur est connecté en vérifiant si l'id_user est présent en session
 {
-    header('Location: accueil.php'); // si oui, redirige vers la page d'acceuil (inutile d'afficher la page d'inscription à un utilisateur connecté)
+    header('Location: index.php'); // si oui, redirige vers la page d'acceuil (inutile d'afficher la page connexion à un utilisateur connecté)
 }
 if (isset($_POST['username']) && ($_POST['password'])) // si le champ username et password du formulaire comprend des données
 {

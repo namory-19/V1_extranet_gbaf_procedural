@@ -1,6 +1,6 @@
 <header>
     <div class="container_logo_gabf">
-    <a href="/accueil.php"><img src="img/logo_gbaf.png" alt="logo GBAF"></a>
+    <a href="index.php"><img src="../img/logo_gbaf.png" alt="logo GBAF"></a>
     </div>
     <?php
         if (isset($_SESSION['id_user']))
@@ -24,7 +24,20 @@
                             ?>
                             <br>
                             <a href="/moncompte.php">Mon compte</a> /
-                            <a href="/deconnexion.php">Déconnexion</a>
+                            <a href="?disconnect">Déconnexion</a>
+                            <?php
+                            require_once('core/functions.php');
+                            disconnect();
+                            ?>
+                            <br>
+                            <?php if ($_SESSION['usergroup'] === '2')
+                                {
+                                    ?>
+                                    <a href="/admin/index.php">Espace admin</a> /
+                                    <a href="/index.php">Front office</a>
+                                    <?php
+                                }
+                                ?>
                         </p>
                     </div>
                 <?php

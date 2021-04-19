@@ -6,7 +6,7 @@ if (isset($_POST['username'])) // si le champ username du formulaire comprend de
 }
 if (isset($_SESSION['id_user'])) // permet de contrôler si l'utlisteur est connecté en vérifiant si l'id_user est présent en session
 {
-    header('Location: accueil.php'); // si oui, redirige vers la page d'acceuil (inutile d'afficher la page d'inscription à un utilisateur connecté)
+    header('Location: index.php'); // si oui, redirige vers la page d'acceuil (inutile d'afficher la page d'inscription à un utilisateur connecté)
 }
 ?>
 <!DOCTYPE html>

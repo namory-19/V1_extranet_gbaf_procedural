@@ -151,11 +151,7 @@ require_once('core/functions.php')
             <p>
             <strong>Votre image de profil actuelle est : </strong>
             </p>
-            <?php 
-            view_img_avatar(); // va chercher la fonction qui controle l'affichage de l'avatar dans core/functions.php
-            $avatar_img=view_img_avatar();
-            ?>
-            <img id="ancre_avatar" src="<?php echo $avatar_img ?>" alt="image profil">
+            <img id="ancre_avatar" src="<?php echo view_img_avatar() ?>" alt="image profil">
             <br>
             </div>
         <div class="formulaire_infos_perso">
