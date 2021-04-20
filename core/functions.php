@@ -641,25 +641,226 @@ function nbr_comment()
 //
 //
 
+function nbr_comment_user()
+{
+    $donnees_actors=view_actors_article();
+    $actors_id=$donnees_actors['id'];
+    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_comment_user FROM comment WHERE actors_id = :actors_id AND user_id_comment = :user_id_comment ');
+    $reponse->execute(array(
+        'actors_id' => $actors_id,
+        'user_id_comment' => $_SESSION['id_user']
+    ));
+    $nb_comment_user = $reponse->fetch();
+    if ($nb_comment_user === false)
+    {
+        $nb_comment_user=0;
+    }
+    return $nb_comment_user;
+    $reponse->closeCursor();
+}
+
+
+//
+//
+// fonction permettant le contôle du nombre de commentaire par user et par fiche
+//
+//
+
+
+
+
+
 function submit_comment()
 {
+    $nb_comment_user = nbr_comment_user();
     if (isset($_POST['commentaire']))
     {
-        $donnees_actors=view_actors_article();
-        $actors_id=$donnees_actors['id'];
-        $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-        $reponse = $bdd->prepare('INSERT INTO comment(commentaire, date_commentaire, user_id_comment, actors_id) VALUES(:commentaire, NOW(), :user_id_comment, :actors_id)'); // insére tous les informations du formulaire en base dans la table "user"
-        $reponse->execute(array(
-            'commentaire' => $_POST['commentaire'],
-            'user_id_comment' => $_SESSION['id_user'],
-            'actors_id' => $actors_id
-        ));
-        $reponse->closeCursor();
+        if ($nb_comment_user['nb_comment_user'] >= 1)
+        {  
+            ?> 
+            <br>
+            <br>
+            <div class="msg_error"> <!-- message pour informer qu'il est possible d'écrire plus d'un commentaite par fiche acteur-->
+            <p>Impossible de commenter plus d'une fois la même fiche acteur</p>        
+            </div>
+            <br>
+            <?php   
+        }
+        else
+        {
+                $donnees_actors=view_actors_article();
+                $actors_id=$donnees_actors['id'];
+                $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+                $reponse = $bdd->prepare('INSERT INTO comment(commentaire, date_commentaire, user_id_comment, actors_id) VALUES(:commentaire, NOW(), :user_id_comment, :actors_id)'); // insére tous les informations du formulaire en base dans la table "user"
+                $reponse->execute(array(
+                    'commentaire' => $_POST['commentaire'],
+                    'user_id_comment' => $_SESSION['id_user'],
+                    'actors_id' => $actors_id
+                ));
+                $reponse->closeCursor();
+                ?>
+                <br>
+                <br>
+                <div class="msg_success"><!-- message pour informer l'utilisateur que l'image a bien été uploadé-->
+                <p>Votre comentaire a bien été envoyé! <a href="">cliquez ici</a> pour rafraichir la page et voir votre commentaire.</p>
+                </div><?php
+        }
+    }
+}
+
+//
+//
+// fonction permettant d'afficher les commentaires sur une fiche acteur ainsi que la pagination
+//
+//
+
+function view_comments_actors()
+{
+    if(isset($_GET['page']) && !empty($_GET['page']))
+    {
+        $current_page = $_GET['page'];
+    }
+    else
+    {
+        $current_page = 1;
+    }
+    $donnees_actors=view_actors_article();
+    $actors_id=$donnees_actors['id'];
+    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_comments FROM comment WHERE actors_id = :actors_id');
+    $reponse->execute(array(
+        'actors_id' => $actors_id
+    ));
+    $donnees = $reponse->fetch();
+    $nb_comments_page = 5;
+    $premier_comment_desc_limit = ($current_page * $nb_comments_page) - $nb_comments_page; // donne la premiere fiche  - permet de renseigner le prmier chiffre de la DESC LIMIT
+    $nb_page_comments = ceil($donnees['nb_comments']/$nb_comments_page); // calcule le nombre de page par fiche en divisant le nombre de fiche totale par le nombre de fiche par page     
+    $reponse->closeCursor();
+
+    $donnees_actors=view_actors_article();
+    $actors_id=$donnees_actors['id'];
+
+    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+    $reponse = $bdd->prepare('SELECT u.prenom, c.commentaire, DATE_FORMAT(c.date_commentaire, \'%d/%m/%Y à %Hh%imin%ss\') AS date_commentaire FROM comment c INNER JOIN user u ON c.user_id_comment=u.id WHERE actors_id = :actors_id ORDER BY c.id DESC LIMIT ' .$premier_comment_desc_limit.','.$nb_comments_page);
+    $reponse->execute(array(
+        'actors_id' => $actors_id
+    ));
+    while($donnees_commentaire = $reponse->fetch())
+    {
         ?>
-        <br>
-        <br>
-        <div class="msg_success"><!-- message pour informer l'utilisateur que l'image a bien été uploadé-->
-        <p>Votre comentaire a bien été envoyé!</p>
-        </div><?php
+        <div class="bloc_comment">
+        <p><strong>Prénom : </strong><?php echo $donnees_commentaire['prenom']?></p>
+        <p><strong>Date : </strong> <?php echo $donnees_commentaire['date_commentaire']?></p>
+        <p><strong>Commentaire : </strong> <?php echo $donnees_commentaire['commentaire']?></p>
+        </div>
+        <?php
+    }
+    $reponse->closeCursor();
+
+    ?>
+    <div class="pagination">
+    <?php 
+        for ($page_comments = 1; $page_comments <= $nb_page_comments; $page_comments++)
+        {
+            echo '<a href="actors.php?url_post='.$_GET['url_post'].'&page='.$page_comments.'#pagination_go">page ' .$page_comments .'</a> | ';
+        }
+        $reponse->closeCursor();
+    ?>
+    </div>
+    <br>
+    <br>
+    <?php
+}
+
+
+//
+//
+// fonction permettant d'afficher le compteur de unlike
+//
+//
+
+function view_unlike()
+{
+    $donnees_actors=view_actors_article();
+    $actors_id=$donnees_actors['id'];
+    
+    $down=1;
+    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_unlikes FROM like_unlike WHERE down = :down AND actors_id = :actors_id');
+    $reponse->execute(array(
+        'actors_id' => $actors_id,
+        'down' => $down
+    ));
+    $nb_unlike = $reponse->fetch();
+    $reponse->closeCursor();
+    return $nb_unlike;
+}
+
+//
+//
+// fonction permettant d'afficher le compteur de like
+//
+//
+
+function view_like()
+{
+    $donnees_actors=view_actors_article();
+    $actors_id=$donnees_actors['id'];
+
+    $up=1;
+    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_likes FROM like_unlike WHERE up = :up AND actors_id = :actors_id');
+    $reponse->execute(array(
+        'actors_id' => $actors_id,
+        'up' => $up
+    ));
+    $nb_like = $reponse->fetch();
+    $reponse->closeCursor();
+    return $nb_like;
+}
+
+
+//
+//
+// fonction permettant d'ajouter un like ou un unlike
+//
+//
+
+function push_like()
+{
+    if (isset($_GET['up']))
+    {
+        if (isset($_GET['down']))
+        {
+            $nb_like = view_like();
+            $nb_unlike = view_unlike();
+            if ($nb_unlike['nb_unlikes']>= 1 || $nb_like['nb_likes']>= 1)
+            {  
+                ?> 
+                <br>
+                <br>
+                <div class="msg_error"> <!-- message pour informer que la page n'existe pas-->
+                <p>impossible de liker plus d'une fois</p>        
+                </div>
+                <br>
+                <?php   
+            }
+            else
+            {
+                $donnees_actors=view_actors_article();
+                $actors_id=$donnees_actors['id'];
+                $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+                $reponse = $bdd->prepare('INSERT INTO like_unlike(up, down, actors_id, user_id_like) VALUES(:up, :down, :actors_id, :user_id_like)'); // insére tous les informations du formulaire en base dans la table "user"
+                $reponse->execute(array(
+                    'up' => $_GET['up'],
+                    'down' => $_GET['down'],
+                    'actors_id' => $actors_id,
+                    'user_id_like' => $_SESSION['id_user']
+                ));
+                $reponse->closeCursor();
+                header('Location: actors.php?url_post='.$_GET['url_post']);
+            }
+        }
     }
 }

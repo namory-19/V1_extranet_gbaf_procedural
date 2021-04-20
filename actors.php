@@ -3,6 +3,8 @@ session_start(); // On démarre la session pour récupérer les informations des
 require_once('core/functions.php');  // appelle le fichier permettant l'accès aux fonctions dont la connexion à la BDD.
 $donnees_actors=view_actors_article();
 $nb_comment=nbr_comment();
+$nb_unlike=view_unlike();
+$nb_like=view_like();
 if ((!isset($_SESSION['id_user'])) || ($_SESSION['active'] ==='0')) // On contrôle si la session est démarré en vérifiant qu'elle contient l'id_user (récupéré à la connexion)
 {
     kill_session();
@@ -39,7 +41,7 @@ if ((!isset($_SESSION['id_user'])) || ($_SESSION['active'] ==='0')) // On contr�
         <div class="commentaire_container">
             <div class="bloc_header_comment">
                 <div class="nb_comment">
-                    <h2>
+                    <h2 id="pagination_go">
                     <?php echo $nb_comment['nb_comment']?> commentaire(s)
                     </h2>
                 </div>
@@ -48,20 +50,17 @@ if ((!isset($_SESSION['id_user'])) || ($_SESSION['active'] ==='0')) // On contr�
                 </div>
                 <div class="counterlike_button">
                     <div class="like">
-                    <p>500000 </p>
-                    <img src="img/up.png" alt="logo like">
+                    <p><?php echo $nb_like['nb_likes'] ?></p> 
+                    <a href="actors.php?url_post=<?php echo $_GET['url_post']?>&amp;up=1&amp;down=0"><img src="img/up.png" alt="logo like">
                     </div>
                     <div class="unlike">
-                    <p>2 </p>
-                    <img src="img/down.png" alt="logo unlike">
+                    <p><?php echo $nb_unlike['nb_unlikes'] ?></p>
+                    <a href="actors.php?url_post=<?php echo $_GET['url_post']?>&amp;up=0&amp;down=1"><img src="img/down.png" alt="logo unlike"></a>
                     </div>
+                    <?php push_like();?>
                 </div>
             </div>
-            <div class="bloc_comment">
-                <p><strong>Prénom :</strong><?php echo $donnees_commentaire['prenom_commentaire']?></p>
-                <p><strong>Date :</strong> <?php echo $donnees_commentaire['date_commentaire']?></p>
-                <p><strong>Commentaire :</strong> <?php echo $donnees_commentaire['commentaire']?></p>
-            </div>
+            <?php view_comments_actors()?>
             <div class="bloc_submit_comment">
                 <form action="actors.php?url_post=<?php echo $_GET['url_post']?>" method="POST">
                 <div>
@@ -71,11 +70,11 @@ if ((!isset($_SESSION['id_user'])) || ($_SESSION['active'] ==='0')) // On contr�
                 <br>
                 </div>
                 <div id="submit_comment">
-                <input type="submit" value="Envoyer" class="button_submit">
+                <a href="#submit_comment"><input type="submit" value="Envoyer" class="button_submit"></a>
                 </div>
                 <br>
-                </form>
                 <?php submit_comment()?>
+                </form>
             </div>
         </div>
     </section>
