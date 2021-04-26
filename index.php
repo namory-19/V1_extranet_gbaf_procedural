@@ -1,9 +1,9 @@
 <?php
 session_start(); // On démarre la session pour récupérer les informations destinées au contôle de connexion 
 require_once('core/functions.php');  // appelle le fichier permettant la connexion à la BDD.
-if ((!isset($_SESSION['id_user'])) || ($_SESSION['active'] ==='0')) // On contrôle si la session est démarré en vérifiant qu'elle contient l'id_user (récupéré à la connexion)
+if ((!isset($_SESSION['id_user'])) || ($_SESSION['active'] ==='0')) // On contrôle si la session est démarrée en vérifiant qu'elle contient l'id_user (récupéré à la connexion) et que ce dernier n'a pas été désactivé par un administrateur.
 {
-    kill_session();
+    kill_session(); // Sinon on fait appel la fonction kill_session pour vider par sécurité la totalité des données de session puis retour à la page de connexion
 }
 ?>
 <!DOCTYPE html>
@@ -16,7 +16,7 @@ if ((!isset($_SESSION['id_user'])) || ($_SESSION['active'] ==='0')) // On contr�
     <title>Page d'accueil de l'extranet GBAF</title>
 </head>
 <body>
-    <?php include("header.php"); ?>
+    <?php include("header.php"); ?>  <!--  Charge le header -->
     <section class="home_about_gabf">
         <h1>
         Extranet de la GBAF
@@ -59,8 +59,8 @@ if ((!isset($_SESSION['id_user'])) || ($_SESSION['active'] ==='0')) // On contr�
         </p>
     </section>
     <section id="pagination_go">  
-        <?php select_actors_article(); ?>
+        <?php select_actors_article(); ?> <!--  fonction permettant d'afficher la liste des article partenaire avec une pagination en bas de page --->
     </section>
-    <?php include("footer.php"); ?>
+    <?php include("footer.php"); ?> <!--  Charge le footer --->
 </body>
 </html>

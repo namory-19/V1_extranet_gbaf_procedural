@@ -1,5 +1,6 @@
 <?php
-require_once(dirname(__FILE__) . '/database.php');  // appelle le fichier permettant la connexion à la BDD.
+
+require_once(dirname(__FILE__) . '/database.php'); // Appelle le fichier permettant la connexion à la BDD.
 
 //
 //
@@ -33,7 +34,7 @@ function disconnect()
 
 //
 //
-// fonction permettant le fonctionnement du formulaire d'inscription à l'extranet coté utilisateur.
+// fonction permettant le fonctionnement du formulaire d'inscription à l'extranet
 //
 //
 
@@ -59,7 +60,7 @@ function register_user()
                     {
                         $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées 
                         $pass_hache = password_hash($_POST['password'], PASSWORD_DEFAULT); // crée une clé de hachage pour le mot de passe
-                        $reponse = $bdd->prepare('INSERT INTO user(nom, prenom, mail, username, password, question, reponse, active, usergroup, date_inscription) VALUES(upper(:nom), :prenom, :mail, :username, :password, :question, lower(:reponse), 1, 1, NOW())'); // insére tous les informations du formulaire en base dans la table "user"
+                        $reponse = $bdd->prepare('INSERT INTO user(nom, prenom, mail, username, password, question, reponse, url_img_avatar, active, usergroup, date_inscription) VALUES(upper(:nom), :prenom, :mail, :username, :password, :question, lower(:reponse), :url_img_avatar, 1, 1, NOW())'); // insére tous les informations du formulaire en base dans la table "user"
                         $reponse->execute(array(
                             'nom' => $_POST['nom'],
                             'prenom' => $_POST['prenom'],
@@ -67,7 +68,9 @@ function register_user()
                             'username' => $_POST['username'],
                             'password' => $pass_hache,
                             'question' => $_POST['question'],
-                            'reponse' => $_POST['reponse']
+                            'reponse' => $_POST['reponse'],
+                            'url_img_avatar' => ''
+
                         ));
                         ?> 
                         <div class="msg_success">  <!-- message pour informer l'utilisateur que son compte a été créé-->
@@ -135,14 +138,14 @@ function connexion_user()
     $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
     if (isset ($_POST['username']) && ($_POST['password'])) // vérifie si les variables sont déclarées et sont différentes de null.
     {
-        $reponse = $bdd->prepare('SELECT * FROM user WHERE username = :username'); // va chercher dans la BDD la ligne corresponsant au username entré dan sle formuliare de connexion
+        $reponse = $bdd->prepare('SELECT * FROM user WHERE username = :username'); // va chercher dans la BDD la ligne correspondante au username entré dans le formulaire de connexion
         $reponse->execute(array(
             'username' => $_POST['username'],
         ));
         $donnees = $reponse->fetch();
         $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées 
         
-        if ($donnees)
+        if ($donnees) // si il y a des données (crées lors de l'inscription), les mets en session le temps de la connexion à l'extranet
         {
             $nom = $donnees['nom'];
             $_SESSION['nom'] = $nom;
@@ -165,14 +168,14 @@ function connexion_user()
             $active = $donnees['active'];
             $_SESSION['active'] = $active;
 
-            $passcheck = password_verify($_POST['password'], $donnees['password']);
-            if ($donnees['active'] === '1')
+            $passcheck = password_verify($_POST['password'], $donnees['password']); // vérifie que le mot de passe saisie est le même que celui en base
+            if ($donnees['active'] === '1') // vérifie que le compte n'a pas été désactivé par un administrateur
             {
-                if ($passcheck)
+                if ($passcheck) // si la vérification du mdp est ok
                 {
-                    header('Location: index.php');
+                    header('Location: index.php'); // envoi vers l'accueil du front office de l'extranet
                 }
-                else
+                else // sinon message d'erreur
                 {
                     ?> 
                     <br>
@@ -184,7 +187,7 @@ function connexion_user()
                     <?php  
                 }
             }
-            else
+            else // sinon message d'erreur
             {
                 ?> 
                 <br>
@@ -196,7 +199,7 @@ function connexion_user()
                 <?php
             }
         }
-        else
+        else // sinon message d'erreur
         {
             ?> 
             <br>
@@ -222,7 +225,7 @@ function modify_user()
 
     if (isset ($_POST['nom']) && ($_POST['prenom'])  && ($_POST['mail'])) // vérifie si les variables sont déclarées et sont différentes de null.
     {
-        $reponse = $bdd->prepare('UPDATE user SET nom = upper(:nom), prenom = :prenom, mail = :mail WHERE username = :username'); // modifie toutes les informations du formulaire en base dans la table "user"
+        $reponse = $bdd->prepare('UPDATE user SET nom = upper(:nom), prenom = :prenom, mail = :mail WHERE username = :username'); // met à jour toutes les informations du formulaire en base dans la table "user"
         $reponse->execute(array(
             'nom' => $_POST['nom'],
             'prenom' => $_POST['prenom'],
@@ -231,7 +234,7 @@ function modify_user()
         ));
         $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées 
 
-        $reponse = $bdd->prepare('SELECT * FROM user WHERE username = :username'); // va chercher dans la BDD la ligne corresponsant au username présent en session
+        $reponse = $bdd->prepare('SELECT * FROM user WHERE username = :username'); // va chercher dans la BDD toutes les informations de la table user de la la ligne correspondant au username présent en session
         $reponse->execute(array(
             'username' => $_SESSION['username'],
         ));
@@ -253,15 +256,22 @@ function modify_user()
         <br>
         <div class="msg_success"> <!-- message pour informer l'utilisateur que les informations de son compte ont été modifiée-->
         <p>Félicitation, vos informations ont été modifiées avec succès!</p>
-        </div><?php
-        header("Refresh: 2;url=moncompte.php"); // rafraichit la page pour la mise à jour des données dans le header
+        </div>
+        <?php
+        
+        echo '<script language="Javascript">
+        <!--
+          document.location.replace("moncompte.php");
+        // -->
+        </script>';
+
         $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées 
     }              
 }
 
 //
 //
-// fonction permettant la modification des informations de connexion sur la page mon compte coté utilisateur.
+// fonction permettant la modification des informations de connexion sur la page mon compte.
 //
 //
 
@@ -283,22 +293,22 @@ function modify_connexion()
                 ));
                     $donnees = $reponse->fetch();
                     
-                    $passcheck = password_verify($_POST['actualpass'], $donnees['password']);
+                    $passcheck = password_verify($_POST['actualpass'], $donnees['password']); // compare le mot de passe actuel avec celui en base
 
-                if ($passcheck)
+                if ($passcheck) // si la comparaison est ok
                 {
                     if (($donnees == false) || ($donnees['username'] === $_SESSION['username'])) // si le "username" n'a pas été trouvé, il est donc libre || ou si le username entré et le même que celui en session
                     {
                         $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées 
                         $pass_hache = password_hash($_POST['password'], PASSWORD_DEFAULT); // crée une clé de hachage pour le mot de passe
-                        $reponse = $bdd->prepare('UPDATE user SET username = :username, password = :password WHERE id = :id_user');
+                        $reponse = $bdd->prepare('UPDATE user SET username = :username, password = :password WHERE id = :id_user'); // met à jour la table user avec le mot de passe et le username
                         $reponse->execute(array(
                             'username' => $_POST['username'],
                             'password' => $pass_hache,
                             'id_user' => $_SESSION['id_user']
                         ));
                         $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées 
-                        $reponse = $bdd->prepare('SELECT * FROM user WHERE id = :id_user'); // va chercher dans la BDD l'id_user en session
+                        $reponse = $bdd->prepare('SELECT * FROM user WHERE id = :id_user'); // récupére les nouvelles données de la table user suite au précédent update
                         $reponse->execute(array(
                             'id_user' => $_SESSION['id_user']
                         ));
@@ -368,7 +378,7 @@ function modify_connexion()
 
 //
 //
-// fonction permettant la modification de la question secrète (et sa réponse) sur la page mon compte coté utilisateur.
+// fonction permettant la modification de la question secrète (et sa réponse) sur la page mon compte.
 //
 //
 
@@ -378,14 +388,14 @@ function modify_question_secrete()
 
     if (isset ($_POST['question']) && ($_POST['reponse'])) // vérifie si les variables sont déclarées et sont différentes de null.
     {
-        $reponse = $bdd->prepare('UPDATE user SET question = :question, reponse = lower(:reponse) WHERE id = :id_user');
+        $reponse = $bdd->prepare('UPDATE user SET question = :question, reponse = lower(:reponse) WHERE id = :id_user'); // met à jour la table user avec les nouvelles "question" et "réponse"
         $reponse->execute(array(
             'question' => $_POST['question'],
             'reponse' => $_POST['reponse'],
             'id_user' => $_SESSION['id_user']
         ));
         $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées 
-        $reponse = $bdd->prepare('SELECT * FROM user WHERE id = :id_user'); // va chercher dans la BDD l'id_user en session
+        $reponse = $bdd->prepare('SELECT * FROM user WHERE id = :id_user'); // récupére les nouvelles données de la table user suite au précédent update
         $reponse->execute(array(
             'id_user' => $_SESSION['id_user']
         ));
@@ -416,22 +426,23 @@ function modify_question_secrete()
 function view_img_avatar()
 {
     $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-    $reponse = $bdd->prepare('SELECT url_img_avatar FROM user WHERE id = :id_user'); // va chercher dans la BDD l'id_user en session
+    $reponse = $bdd->prepare('SELECT url_img_avatar FROM user WHERE id = :id_user'); // récupére url de l'avatar selon l'id_user en session
     $reponse->execute(array(
         'id_user' => $_SESSION['id_user']
     ));
     $donnees = $reponse->fetch();
 
-    if ($donnees['url_img_avatar'] == false) // si l'url de l'avatar en bdd n'est pas présente
+    if ($donnees['url_img_avatar'] == false) // si l'url de l'avatar en bdd n'est pas présente (ce qui veut dire que l'utilisateur n'a pas encore mis une image personnalisée)
     {
-        $avatar_img = '../img/icon_user.png'; // mettre une image par défaut
+        $avatar_img = '../img/icon_user.png'; // alors mettre l'image par défaut
     }
     else
     {
-        $avatar_img = '../img/avatar/'.$donnees['url_img_avatar']; // va chercher l'url pour afficher l'image correspondante à l'utilisateur
+        $avatar_img = '../img/avatar/'.$donnees['url_img_avatar']; // va chercher l'url de l'image déjà uploadé par l'utilisateur afin d'être affichée
     }
     $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
-   return $avatar_img;
+
+   return $avatar_img; // retourne la valeur $avatar_img qui aura comme variable soit l'url de l'image par défaut soit l'url de l'image uploadé par l'utilisateur
 }
 
 
@@ -443,37 +454,39 @@ function view_img_avatar()
 
 function add_modify_img_avatar()
 {
-    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) // si le fichier a bien été envoyé et s'il n'y a pas d'erreur
+    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) // contrôle que le fichier a bien été envoyé et qu'il n'y a pas d'erreur
     {
-        if ($_FILES['avatar']['size'] <= 1000000) // le fichier doit faire moins de 3mo
+        if ($_FILES['avatar']['size'] <= 1000000) // contôle que le fichier fait moins de 1mo
         {
-            $infosfichier = pathinfo($_FILES['avatar']['name']);
-            $extension_upload = $infosfichier['extension'];
-            $extensions_autorisees = array('jpg', 'jpeg', 'gif', 'png', 'JPG', 'JPEG', 'GIF', 'PNG');
-            if (in_array($extension_upload, $extensions_autorisees)) // si l'extension est autorisée
+            $infosfichier = pathinfo($_FILES['avatar']['name']); // récupère le nom du fichier
+            $extension_upload = $infosfichier['extension']; // récupère l'extension de l'image uploadée
+            $extensions_autorisees = array('jpg', 'jpeg', 'gif', 'png', 'JPG', 'JPEG', 'GIF', 'PNG');  // liste des extensions autorisées pour l'upload de l'image
+            if (in_array($extension_upload, $extensions_autorisees)) // si l'extension du fichier fait partie des extensions autorisées.
             {
-             $url_img_avatar = 'avatar_user_'.$_SESSION['id_user'].'.'.$extension_upload;                                   
-             move_uploaded_file($_FILES['avatar']['tmp_name'], 'img/avatar/' . basename($url_img_avatar));  // On peut valider le fichier et le stocker définitivement
+             $url_img_avatar = 'avatar_user_'.$_SESSION['id_user'].'.'.$extension_upload; // réécrit le nouveau nom de l'image du type : avatar_user_14.jpg                            
+             move_uploaded_file($_FILES['avatar']['tmp_name'], 'img/avatar/' . basename($url_img_avatar));  // déplace le fichier vers le dossier img/avatar pour le stocker définitivement
              
              $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
 
-             $reponse = $bdd->prepare('UPDATE user SET url_img_avatar = :url_img_avatar WHERE id = :id_user');
+             $reponse = $bdd->prepare('UPDATE user SET url_img_avatar = :url_img_avatar WHERE id = :id_user'); // met à jour la table user avec l'url de l'image uploadée par l'utilisateur
              $reponse->execute(array(
                  'url_img_avatar' => $url_img_avatar,
                  'id_user' => $_SESSION['id_user']
              ));
-             $_SESSION['url_img_avatar'] = $url_img_avatar;
+             $_SESSION['url_img_avatar'] = $url_img_avatar; // mise en session de la nouvelle url de l'avatar
              ?>
              <br>
              <br>
              <div class="msg_success"><!-- message pour informer l'utilisateur que l'image a bien été uploadé-->
              <p>Votre image a été envoyé avec succès!</p>
-             </div><?php
-            echo '<script language="Javascript">
-            <!--
-                  document.location.replace("moncompte.php#ancre_avatar");
-            // -->
-      </script>';
+             </div>
+             <?php // script JS pour recharger la page courante afin d'afficher la nouvelle image
+
+                echo '<script language="Javascript">
+                <!--
+                  document.location.replace("moncompte.php");
+                // -->
+                </script>';
             }
             else
             {
@@ -508,73 +521,73 @@ function add_modify_img_avatar()
 //
 //
 
-function textebrut($texte, $nb){
-    $txt_brut=strip_tags($texte);
+function texte_short($texte, $nb){
+    $txt_short=strip_tags($texte);
     if ( strlen($texte) <= $nb )
-        return $txt_brut;
-    if ( ($pos_espace = strpos($txt_brut,' ',$nb)) === FALSE ) 
-        return $txt_brut;
-    $txt_brut = substr($txt_brut,0,$pos_espace);  
-    return $txt_brut;
+        return $txt_short;
+    if ( ($pos_espace = strpos($txt_short,' ',$nb)) === FALSE ) 
+        return $txt_short;
+    $txt_short = substr($txt_short,0,$pos_espace);  
+    return $txt_short;
 }
 
 //
 //
-// fonction permettant d'afficher la liste des article partenaire avec une pagonation en bas de page
+// fonction permettant d'afficher la liste des article partenaire avec une pagoiation en bas de page
 //
 //
 
 function select_actors_article()
 {
-    if(isset($_GET['page']) && !empty($_GET['page']))
+    if(isset($_GET['page']) && !empty($_GET['page'])) // contrôle que les données envoyées via l'URL pour la pagination sont bien présentent
         {
-            $current_page = $_GET['page'];
+            $current_page = $_GET['page']; // si oui, alors la page courante est celle défini dans l'URL
         }
-        else
+    else
         {
-            $current_page = 1;
+            $current_page = 1; // sinon, la page courante est la première
         }
         $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-        $reponse = $bdd->query('SELECT COUNT(*) AS nb_fiches FROM actors');
+        $reponse = $bdd->query('SELECT COUNT(*) AS nb_fiches FROM actors'); // requête sql qui renvoie le nombre (de ligne) de fiches acteurs
         $donnees = $reponse->fetch();
-        $nb_fiches_page = 5;
-        $premiere_fiche_desc_limit = ($current_page * $nb_fiches_page) - $nb_fiches_page; // donne la premiere fiche  - permet de renseigner le prmier chiffre de la DESC LIMIT
+        $nb_fiches_page = 5; // définit le le nombre de fiches à afficher par page
+        $premiere_fiche_desc_limit = ($current_page * $nb_fiches_page) - $nb_fiches_page; // donne la premiere fiche de la page courante  - permet de renseigner le premier chiffre de la DESC LIMIT
         $nb_page_fiches = ceil($donnees['nb_fiches']/$nb_fiches_page); // calcule le nombre de page par fiche en divisant le nombre de fiche totale par le nombre de fiche par page     
-        $reponse->closeCursor();
+        $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
     
-    $reponse = $bdd->query('SELECT id, titre, texte, url_post, url_img_actors FROM actors ORDER BY id DESC LIMIT ' .$premiere_fiche_desc_limit.','.$nb_fiches_page); //
+    $reponse = $bdd->query('SELECT id, titre, texte, url_post, url_img_actors FROM actors ORDER BY id DESC LIMIT ' .$premiere_fiche_desc_limit.','.$nb_fiches_page); // va chercher toutes les données nécessaires à l'affichage des blocs résumé de fiches acteurs selon la page séletionnée dans  la pagination
 
-    while ($donnees=$reponse->fetch())
+    while ($donnees=$reponse->fetch()) // boucle d'affichage des blocs résumé de fiche acteur -  s'arrête une fois qu'il n'y a plus de données
     {
         ?>
         <div class="home_bloc_actors_container">
             <div class="home_logo_bloc_actors">
-                    <img src="<?php echo $donnees['url_img_actors']?>" alt="logo <?php echo $donnees['titre']?>">
+                    <img src="<?php echo $donnees['url_img_actors']?>" alt="logo <?php echo $donnees['titre']?>"> <!-- affiche image logo fiche acteur-->
             </div>
             <div class="home_text_bloc_actors">
                 <h3>
-                <?php echo $donnees['titre']
+                <?php echo $donnees['titre'] // affiche le titre de la fiche acteur
                 ?>
                 </h3>
                 <p>
-                <?php echo textebrut($donnees['texte'], 130);
+                <?php echo texte_short($donnees['texte'], 130); // affiche une portion du texte de la fiche acteur limitée à 130 carcatères via la fonction texte_short()
                 ?> ...
                 </p>
             </div>
             <div class="home_read_more_bloc_actors">
-                <a href="actors.php?url_post=<?php echo $donnees['url_post']?>" target="_blank" rel="noopener noreferrer"><div class="home_read_more_bloc_actors_button">Lire la suite</div></a>   
+                <a href="actors.php?url_post=<?php echo $donnees['url_post']?>" target="_blank" rel="noopener noreferrer"><div class="home_read_more_bloc_actors_button">Lire la suite</div></a>   <!-- affiche un bouton qui amène vers la fiche acteur correspondante-->
             </div>
         </div>
     <?php  
     }
     ?>
-    <div class="pagination">
+    <div class="pagination"> 
     <?php 
-        for ($page_fiches = 1; $page_fiches <= $nb_page_fiches; $page_fiches++)
+        for ($page_fiches = 1; $page_fiches <= $nb_page_fiches; $page_fiches++) // boucle qui gènere les pages composants la pagination (1 page toutes les 5 fiches acteurs)
         {
-            echo '<a href="index.php?page='.$page_fiches.'#pagination_go">page ' .$page_fiches .'</a> | ';
+            echo '<a href="index.php?page='.$page_fiches.'#pagination_go">page ' .$page_fiches .'</a> | '; // url des pages composants la pagination (1 page toutes les 5 fiches acteurs)
         }
-        $reponse->closeCursor();
+        $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
     ?>
     </div>
     <?php
@@ -588,52 +601,80 @@ function select_actors_article()
 
 function view_actors_article()
 {
-    if (isset($_GET['url_post']))
+    if (isset($_GET['url_post'])) // vérifie si les variables sont déclarées
     {
         $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-        $reponse = $bdd->prepare('SELECT id, titre, url_website, texte, url_post, url_img_actors, meta_description, meta_keywords, user_id_post, DATE_FORMAT(date_post, \'%d/%m/%Y à %Hh%imin%ss\') FROM actors WHERE url_post = :url_post');
+        $reponse = $bdd->prepare('SELECT id, titre, url_website, texte, url_post, url_img_actors, meta_description, meta_keywords, user_id_post, DATE_FORMAT(date_post, \'%d/%m/%Y à %Hh%imin%ss\') FROM actors WHERE url_post = :url_post'); // va chercher dans la table actors les données à afficher 
         $reponse->execute(array(
             'url_post' => $_GET['url_post']));
         $donnees_actors = $reponse->fetch();
-        return $donnees_actors;
-        $reponse->closeCursor();
+        
+        if ($_GET['url_post'] !== $donnees_actors['url_post']) // compare l'url envoyé par le navigateur à celle en base
+        {
+            header('Location: /index.php'); // si pas identique, retour à l'accueil
+        }
+        else // si identique laisse passer le flux et affiche les données de la fiche acteur
+        {
+            return $donnees_actors; // retourne les données de la fiche acteur
+            $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
+        }
     }
     else
     {
-        ?> 
-        <br>
-        <br>
-        <div class="msg_error"> <!-- message pour informer que la page n'existe pas-->
-        <p>La fiche acteur / partenaire que vous cherchez n'existe pas, <a href="/index.php" target="_blank" rel="noopener noreferrer">cliquez ici</a> pour vous rendre à l'accueil.</p>        </div>
-        <br>
-        <?php   
+        header('Location: /index.php'); // si pas déclarées, retour à l'accueil
     }
 }
 
 
 //
 //
-// fonction permettant d'afficher le nombre de commentaire
+// fonction permettant d'afficher le nombre de commentaire par fiche
 //
 //
 
 function nbr_comment()
 {
-    $donnees_actors=view_actors_article();
-    $actors_id=$donnees_actors['id'];
+    $donnees_actors=view_actors_article(); // récupére les données issue de la fonction view_actors_article() permettant d'afficher une fiche acteur
+    $actors_id=$donnees_actors['id']; // sélectionne spécifiquement l'id de la fiche qui est actuellemnt en cours de visualisation
     $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_comment FROM comment WHERE actors_id = :actors_id');
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_comment FROM comment WHERE actors_id = :actors_id'); // récupère le nombre (de ligne) de commentaires pour la fiche en cours de visualisation 
     $reponse->execute(array(
         'actors_id' => $actors_id
     ));
     $nb_comment = $reponse->fetch();
-    if ($nb_comment === false)
+    if ($nb_comment === false) // si il n'y a pas de commentaire
     {
-        $nb_comment=0;
+        $nb_comment=0; // alors la variable nb_comment vaut 0
     }
-    return $nb_comment;
-    $reponse->closeCursor();
+    return $nb_comment; // retourne le nombre de commmentaire de la fiche en cours de visualisation
+    $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
 }
+
+//
+//
+// fonction permettant le contôle du nombre de commentaire par user et par fiche 
+//
+//
+
+function nbr_comment_user()
+{
+    $donnees_actors=view_actors_article(); // récupére les données issue de la fonction view_actors_article() permettant d'afficher une fiche acteur
+    $actors_id=$donnees_actors['id']; // sélectionne spécifiquement l'id de la fiche qui est actuellemnt en cours de visualisation
+    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_comment_user FROM comment WHERE actors_id = :actors_id AND user_id_comment = :user_id_comment '); // récupère le nombre (de ligne) de commentaires par utilisateur pour la fiche en cours de visualisation 
+    $reponse->execute(array(
+        'actors_id' => $actors_id,
+        'user_id_comment' => $_SESSION['id_user']
+    ));
+    $nb_comment_user = $reponse->fetch();
+    if ($nb_comment_user === false) // si il n'y a pas de commentaire posté par l'utilisateur (actuellement loggué) sur la fiche en cours de visualisation
+    {
+        $nb_comment_user=0; // alrs la variable vaut 0
+    }
+    return $nb_comment_user; // retourne le nombre de commentaire posté par l'utilisateur (actuellement loggué) sur la fiche en cours de visualisation
+    $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
+}
+
 
 //
 //
@@ -641,47 +682,17 @@ function nbr_comment()
 //
 //
 
-function nbr_comment_user()
-{
-    $donnees_actors=view_actors_article();
-    $actors_id=$donnees_actors['id'];
-    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_comment_user FROM comment WHERE actors_id = :actors_id AND user_id_comment = :user_id_comment ');
-    $reponse->execute(array(
-        'actors_id' => $actors_id,
-        'user_id_comment' => $_SESSION['id_user']
-    ));
-    $nb_comment_user = $reponse->fetch();
-    if ($nb_comment_user === false)
-    {
-        $nb_comment_user=0;
-    }
-    return $nb_comment_user;
-    $reponse->closeCursor();
-}
-
-
-//
-//
-// fonction permettant le contôle du nombre de commentaire par user et par fiche
-//
-//
-
-
-
-
-
 function submit_comment()
 {
-    $nb_comment_user = nbr_comment_user();
-    if (isset($_POST['commentaire']))
+    $nb_comment_user = nbr_comment_user(); // récupère le données issues de la fonction permettant le contôle du nombre de commentaire par user et par fiche 
+    if (isset($_POST['commentaire'])) // vérifie si les variables sont déclarées
     {
-        if ($nb_comment_user['nb_comment_user'] >= 1)
+        if ($nb_comment_user['nb_comment_user'] >= 1) // contrôle que l'utilisateur (actuellement loggué) a posté un ou plusieurs commentaire sur la fiche en cours de visualisation, si oui message d'erreur ci dessous
         {  
             ?> 
             <br>
             <br>
-            <div class="msg_error"> <!-- message pour informer qu'il est possible d'écrire plus d'un commentaite par fiche acteur-->
+            <div class="msg_error"> <!-- message pour informer qu'il est impossible d'écrire plus d'un commentaite par fiche acteur-->
             <p>Impossible de commenter plus d'une fois la même fiche acteur</p>        
             </div>
             <br>
@@ -689,22 +700,23 @@ function submit_comment()
         }
         else
         {
-                $donnees_actors=view_actors_article();
-                $actors_id=$donnees_actors['id'];
-                $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-                $reponse = $bdd->prepare('INSERT INTO comment(commentaire, date_commentaire, user_id_comment, actors_id) VALUES(:commentaire, NOW(), :user_id_comment, :actors_id)'); // insére tous les informations du formulaire en base dans la table "user"
-                $reponse->execute(array(
-                    'commentaire' => $_POST['commentaire'],
-                    'user_id_comment' => $_SESSION['id_user'],
-                    'actors_id' => $actors_id
-                ));
-                $reponse->closeCursor();
-                ?>
-                <br>
-                <br>
-                <div class="msg_success"><!-- message pour informer l'utilisateur que l'image a bien été uploadé-->
-                <p>Votre comentaire a bien été envoyé! <a href="">cliquez ici</a> pour rafraichir la page et voir votre commentaire.</p>
-                </div><?php
+            $donnees_actors=view_actors_article(); // récupére les données issue de la fonction view_actors_article() permettant d'afficher une fiche acteur
+            $actors_id=$donnees_actors['id']; // sélectionne spécifiquement l'id de la fiche qui est actuellement en cours de visualisation
+            $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+            $reponse = $bdd->prepare('INSERT INTO comment(commentaire, date_commentaire, user_id_comment, actors_id) VALUES(:commentaire, NOW(), :user_id_comment, :actors_id)'); // insére le nouveau commentaire en BDD
+            $reponse->execute(array(
+                'commentaire' => $_POST['commentaire'],
+                'user_id_comment' => $_SESSION['id_user'],
+                'actors_id' => $actors_id
+            ));
+            $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
+                // script JS pour recharger la page courante afin de voir la modification du compteur de like
+
+                echo '<script language="Javascript">
+                <!--
+                  document.location.replace("actors.php?url_post='.$_GET['url_post'].'");
+                // -->
+                </script>';
         }
     }
 }
@@ -717,55 +729,61 @@ function submit_comment()
 
 function view_comments_actors()
 {
-    if(isset($_GET['page']) && !empty($_GET['page']))
+    if(isset($_GET['page']) && !empty($_GET['page'])) // contrôle que les données envoyées via l'URL pour la pagination sont bien présentent
     {
-        $current_page = $_GET['page'];
+        $current_page = $_GET['page']; // si oui, alors la page courante est celle défini dans l'URL
     }
     else
     {
-        $current_page = 1;
+        $current_page = 1; // sinon, la page courante est la première
     }
-    $donnees_actors=view_actors_article();
-    $actors_id=$donnees_actors['id'];
+    $donnees_actors=view_actors_article(); // récupére les données issue de la fonction view_actors_article() permettant d'afficher une fiche acteur
+    $actors_id=$donnees_actors['id']; // sélectionne spécifiquement l'id de la fiche qui est actuellement en cours de visualisation
     $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_comments FROM comment WHERE actors_id = :actors_id');
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_comments FROM comment WHERE actors_id = :actors_id'); // récupère le nombre (de ligne) de commentaires pour la fiche en cours de visualisation 
     $reponse->execute(array(
         'actors_id' => $actors_id
     ));
     $donnees = $reponse->fetch();
-    $nb_comments_page = 5;
-    $premier_comment_desc_limit = ($current_page * $nb_comments_page) - $nb_comments_page; // donne la premiere fiche  - permet de renseigner le prmier chiffre de la DESC LIMIT
+    $nb_comments_page = 5; // limite à 5 le nombre de commenaires par page
+    $premier_comment_desc_limit = ($current_page * $nb_comments_page) - $nb_comments_page; // donne la position de la premiere fiche de la page courante  - permet de renseigner le premier chiffre de la DESC LIMIT
     $nb_page_comments = ceil($donnees['nb_comments']/$nb_comments_page); // calcule le nombre de page par fiche en divisant le nombre de fiche totale par le nombre de fiche par page     
-    $reponse->closeCursor();
+    $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
 
-    $donnees_actors=view_actors_article();
-    $actors_id=$donnees_actors['id'];
+    $donnees_actors=view_actors_article(); // récupére les données issue de la fonction view_actors_article() permettant d'afficher une fiche acteur
+    $actors_id=$donnees_actors['id']; // sélectionne spécifiquement l'id de la fiche qui est actuellement en cours de visualisation
 
     $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-    $reponse = $bdd->prepare('SELECT u.prenom, c.commentaire, DATE_FORMAT(c.date_commentaire, \'%d/%m/%Y à %Hh%imin%ss\') AS date_commentaire FROM comment c INNER JOIN user u ON c.user_id_comment=u.id WHERE actors_id = :actors_id ORDER BY c.id DESC LIMIT ' .$premier_comment_desc_limit.','.$nb_comments_page);
+    // requète permettant de récupèrer des informations de la table comment et de la table user pour l'affichage des commentaires
+    $reponse = $bdd->prepare('SELECT u.prenom, u.url_img_avatar , c.commentaire, DATE_FORMAT(c.date_commentaire, \'%d/%m/%Y à %Hh%imin%ss\') AS date_commentaire FROM comment c INNER JOIN user u ON c.user_id_comment=u.id WHERE actors_id = :actors_id ORDER BY c.id DESC LIMIT ' .$premier_comment_desc_limit.','.$nb_comments_page);
     $reponse->execute(array(
         'actors_id' => $actors_id
     ));
-    while($donnees_commentaire = $reponse->fetch())
+    while($donnees_commentaire = $reponse->fetch()) // boucle affichant les commentaires
     {
         ?>
         <div class="bloc_comment">
-        <p><strong>Prénom : </strong><?php echo $donnees_commentaire['prenom']?></p>
-        <p><strong>Date : </strong> <?php echo $donnees_commentaire['date_commentaire']?></p>
-        <p><strong>Commentaire : </strong> <?php echo $donnees_commentaire['commentaire']?></p>
+            <div class="bloc_comment_img">
+                <img class="bloc_comment_img" src="/img/avatar/<?php echo $donnees_commentaire['url_img_avatar'] ?>" alt="Avatar utilisateur"> <!--  affiche l'image renvoyée par la fonction --->
+            </div>
+            <div class="bloc_comment_text" >
+                <p><strong>Prénom : </strong><?php echo $donnees_commentaire['prenom']?></p>
+                <p><strong>Date : </strong> <?php echo $donnees_commentaire['date_commentaire']?></p>
+                <p><strong>Commentaire : </strong> <?php echo $donnees_commentaire['commentaire']?></p>
+            </div>
         </div>
         <?php
     }
-    $reponse->closeCursor();
+    $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
 
     ?>
     <div class="pagination">
     <?php 
-        for ($page_comments = 1; $page_comments <= $nb_page_comments; $page_comments++)
+        for ($page_comments = 1; $page_comments <= $nb_page_comments; $page_comments++) // boucle qui gènere les pages composants la pagination (1 page toutes les 5 commentaires)
         {
-            echo '<a href="actors.php?url_post='.$_GET['url_post'].'&page='.$page_comments.'#pagination_go">page ' .$page_comments .'</a> | ';
+            echo '<a href="actors.php?url_post='.$_GET['url_post'].'&page='.$page_comments.'#pagination_go">page ' .$page_comments .'</a> | '; // url des pages composants la pagination (1 page toutes les 5 commentaires)
         }
-        $reponse->closeCursor();
+        $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées
     ?>
     </div>
     <br>
@@ -776,48 +794,72 @@ function view_comments_actors()
 
 //
 //
-// fonction permettant d'afficher le compteur de unlike
+// fonction permettant d'afficher le nombre de unlike
 //
 //
 
 function view_unlike()
 {
-    $donnees_actors=view_actors_article();
-    $actors_id=$donnees_actors['id'];
+    $donnees_actors=view_actors_article(); // récupére les données issue de la fonction view_actors_article() permettant d'afficher une fiche acteur
+    $actors_id=$donnees_actors['id']; // sélectionne spécifiquement l'id de la fiche qui est actuellement en cours de visualisation
     
-    $down=1;
+    $down=1; // attribue la valeur 1 à la variable
     $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_unlikes FROM like_unlike WHERE down = :down AND actors_id = :actors_id');
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_unlikes FROM like_unlike WHERE down = :down AND actors_id = :actors_id'); // requête qui permet de récupèrer le nombre de dislike (down vaut 1) pour la fiche
     $reponse->execute(array(
         'actors_id' => $actors_id,
         'down' => $down
     ));
     $nb_unlike = $reponse->fetch();
     $reponse->closeCursor();
-    return $nb_unlike;
+    return $nb_unlike; // retourne le nombre de pouce baissé
 }
 
 //
 //
-// fonction permettant d'afficher le compteur de like
+// fonction permettant d'afficher le nombre de like
 //
 //
 
 function view_like()
 {
-    $donnees_actors=view_actors_article();
-    $actors_id=$donnees_actors['id'];
+    $donnees_actors=view_actors_article(); // récupére les données issue de la fonction view_actors_article() permettant d'afficher une fiche acteur
+    $actors_id=$donnees_actors['id']; // sélectionne spécifiquement l'id de la fiche qui est actuellement en cours de visualisation
 
-    $up=1;
+    $up=1; // attribue la valeur 1 à la variable
     $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_likes FROM like_unlike WHERE up = :up AND actors_id = :actors_id');
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_likes FROM like_unlike WHERE up = :up AND actors_id = :actors_id'); // requête qui permet de récupèrer le nombre de dislike (up vaut 1) pour la fiche 
     $reponse->execute(array(
         'actors_id' => $actors_id,
         'up' => $up
     ));
     $nb_like = $reponse->fetch();
     $reponse->closeCursor();
-    return $nb_like;
+    return $nb_like; // retourne le nombre de pouce lévé
+}
+
+
+
+
+function control_like_unlike_user()
+{
+    $donnees_actors=view_actors_article(); // récupére les données issue de la fonction view_actors_article() permettant d'afficher une fiche acteur
+    $actors_id=$donnees_actors['id']; // sélectionne spécifiquement l'id de la fiche qui est actuellement en cours de visualisation
+
+    $up=1; // attribue la valeur 1 à la variable
+    $down=1; // attribue la valeur 1 à la variable
+    $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
+    $reponse = $bdd->prepare('SELECT COUNT(*) AS nb_likes_user FROM like_unlike WHERE (up = :up OR down = :down) AND actors_id = :actors_id AND user_id_like = :user_id_like'); // requête qui permet de récupèrer le nombre de fois où l'utilisateur a liké pou disliké pour une même fiche 
+    $reponse->execute(array(
+        'actors_id' => $actors_id,
+        'up' => $up,
+        'down' => $down,
+        'user_id_like' => $_SESSION['id_user']
+
+    ));
+    $nb_like_unlike_user = $reponse->fetch();
+    $reponse->closeCursor();
+    return $nb_like_unlike_user; // retourne le nombre de pouce lévé
 }
 
 
@@ -829,18 +871,18 @@ function view_like()
 
 function push_like()
 {
-    if (isset($_GET['up']))
+    if (isset($_GET['up']))  // contrôle que les données envoyées via l'URL pour le like sont là
     {
-        if (isset($_GET['down']))
+        if (isset($_GET['down'])) // contrôle que les données envoyées via l'URL pour le dislike sont là
         {
-            $nb_like = view_like();
-            $nb_unlike = view_unlike();
-            if ($nb_unlike['nb_unlikes']>= 1 || $nb_like['nb_likes']>= 1)
+            $nb_like_unlike_user=control_like_unlike_user();
+
+            if ($nb_like_unlike_user['nb_likes_user'] >= 1) // si il y a 1 like ou 1 unlike dèja posté par un même utilisateur
             {  
                 ?> 
                 <br>
                 <br>
-                <div class="msg_error"> <!-- message pour informer que la page n'existe pas-->
+                <div class="msg_error"> <!-- message pour informer qu'il est impossible de liker plus d'une fois pour un même utilisateur-->
                 <p>impossible de liker plus d'une fois</p>        
                 </div>
                 <br>
@@ -848,10 +890,10 @@ function push_like()
             }
             else
             {
-                $donnees_actors=view_actors_article();
-                $actors_id=$donnees_actors['id'];
+                $donnees_actors=view_actors_article(); // récupére les données issue de la fonction view_actors_article() permettant d'afficher une fiche acteur
+                $actors_id=$donnees_actors['id']; // sélectionne spécifiquement l'id de la fiche qui est actuellement en cours de visualisation
                 $bdd=get_bdd(); // appelle la fonction de connexion à la BDD.
-                $reponse = $bdd->prepare('INSERT INTO like_unlike(up, down, actors_id, user_id_like) VALUES(:up, :down, :actors_id, :user_id_like)'); // insére tous les informations du formulaire en base dans la table "user"
+                $reponse = $bdd->prepare('INSERT INTO like_unlike(up, down, actors_id, user_id_like) VALUES(:up, :down, :actors_id, :user_id_like)'); // insére tous les données relatives aux likes en base
                 $reponse->execute(array(
                     'up' => $_GET['up'],
                     'down' => $_GET['down'],
@@ -859,7 +901,14 @@ function push_like()
                     'user_id_like' => $_SESSION['id_user']
                 ));
                 $reponse->closeCursor();
-                header('Location: actors.php?url_post='.$_GET['url_post']);
+
+                // script JS pour recharger la page courante afin de voir la modification du compteur de like
+
+                echo '<script language="Javascript">
+                <!--
+                  document.location.replace("actors.php?url_post='.$_GET['url_post'].'");
+                // -->
+                </script>';
             }
         }
     }

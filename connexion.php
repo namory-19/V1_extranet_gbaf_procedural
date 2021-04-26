@@ -28,7 +28,7 @@ if (isset($_POST['username']) && ($_POST['password'])) // si le champ username e
     <title>Page de connexion à l'extranet GBAF</title>
 </head>
 <body>
-    <?php include("header.php"); ?>
+    <?php include("header.php"); ?> <!--  Charge le header -->
     <section class="page_connexion_inscription">
         <div class="h1_connexion_inscription">
             <h1>
@@ -68,6 +68,6 @@ if (isset($_POST['username']) && ($_POST['password'])) // si le champ username e
             Toujours pas inscrit? <a href="/inscription.php" target="_blank" rel="noopener noreferrer">Cliquez ici</a> pour créer votre compte à l'extranet GBAF.
         </p>
     </section>
-    <?php include("footer.php"); ?>
+    <?php include("footer.php"); ?> <!--  Charge le footer -->
 </body>
 </html>

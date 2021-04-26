@@ -1,4 +1,9 @@
 <?php
+//
+//
+// fonction permettant la connexion à la base de données
+//
+//
 
 function get_bdd (): \PDO 
 {

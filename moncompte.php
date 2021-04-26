@@ -1,10 +1,10 @@
 <?php
 session_start(); // On démarre la session pour récupérer les informations destinées au contôle de connexion 
-if (!isset($_SESSION['id_user'])) // On contrôle si la session est démarré en vérifiant qu'elle contient l'id_user (récupéré à la connexion)
+require_once('core/functions.php');  // appelle le fichier permettant l'accès aux fonctions.
+if ((!isset($_SESSION['id_user'])) || ($_SESSION['active'] ==='0')) // On contrôle si la session est démarrée en vérifiant qu'elle contient l'id_user (récupéré à la connexion) et que ce dernier n'a pas été désactivé par un administrateur.
 {
-    header('Location: connexion.php'); // sinon retour à la page de connexion
+    kill_session(); // Sinon on fait appel la fonction kill_session pour vider par sécurité la totalité des données de session puis retour à la page de connexion
 }
-require_once('core/functions.php')
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -16,7 +16,7 @@ require_once('core/functions.php')
     <title>Paramètre du compte sur l'extranet GBAF</title>
 </head>
 <body>
-    <?php include("header.php");?>
+    <?php include("header.php");?> <!--  Charge le header --->
     <section class="informations_user">
     <div class="h1_moncompte_center">
             <h1>
@@ -56,7 +56,7 @@ require_once('core/functions.php')
                     <br>
                 <input id="ancre_name" type="submit" value="Modifier" class="button_submit">
                 <?php 
-                modify_user(); // va chercher la fonction qui controle le formulaire d'inscription dans core/functions.php
+                modify_user(); // fonction permettant la modification des informations personnelles sur la page mon compte coté utilisateur
                 ?>
             </form>
         </div>
@@ -97,7 +97,7 @@ require_once('core/functions.php')
                     <br>
                 <input type="submit" value="Modifier" class="button_submit">
                 <?php 
-                modify_connexion(); // va chercher la fonction qui controle le formulaire d'inscription dans core/functions.php
+                modify_connexion(); // fonction permettant la modification des informations de connexion sur la page mon compte
                 ?>
             </form>
         </div>
@@ -113,7 +113,7 @@ require_once('core/functions.php')
         <div class="formulaire_infos_perso">
             <form action="moncompte.php" method="post"> <!-- forumulaire de modification des informations personnelles-->
                     <p>
-                        La question que vous avez choisi lors de votre inscription est : <strong><?php echo isset($_POST['question'])? $_POST['question'] : $_SESSION['question'];?></strong>
+                        La question que vous avez choisi lors de votre inscription est : <strong><?php echo isset($_POST['question'])? $_POST['question'] : $_SESSION['question'];?></strong> <!-- Rappel de la question avec préremplissage du champ avec les informations déjà remplis (en cas de rechargement du formulaire)-->
                     </p>
                     <div class="question">
                     <label for="question"><strong>Choisissez une question secrète :  </strong></label> <!-- champ à choix multiples pour la gestion de question secrète (utile en cas de réucpération de mot de passe) -->
@@ -134,7 +134,7 @@ require_once('core/functions.php')
                     <br>
                 <input type="submit" value="Modifier" class="button_submit">
                 <?php 
-                modify_question_secrete(); // va chercher la fonction qui controle la modification du formulaire de changement de question secrète dans core/functions.php
+                modify_question_secrete(); // fonction permettant la modification de la question secrète (et sa réponse) sur la page mon compte.
                 ?>
             </form>
         </div>
@@ -151,34 +151,26 @@ require_once('core/functions.php')
             <p>
             <strong>Votre image de profil actuelle est : </strong>
             </p>
-            <img id="ancre_avatar" src="<?php echo view_img_avatar() ?>" alt="image profil">
+            <img id="ancre_avatar" src="<?php echo view_img_avatar() ?>" alt="image profil"> <!-- fonction permettant l'affichage de l'avatar sur la page mon compte et dans le header-->
             <br>
             </div>
         <div class="formulaire_infos_perso">
             <form action="moncompte.php" method="post" enctype="multipart/form-data"> <!-- forumulaire d'envoie d'images'-->
                     <div class="send_image">
-                        <label for="avatar"><strong>Envoyer une nouvelle image <br>(type autorisé : png, gif, jpg, jpeg et poids <= 1mo) :  </strong><br></label> <!-- champ pour la réponse à la question secrète -->
+                        <label for="avatar"><strong>Envoyer une nouvelle image <br>(type autorisé : png, gif, jpg, jpeg et poids <= 1mo) :  </strong><br></label>
                         <br>
                         <input type="file" id="avatar" name="avatar" required>
                     </div>
                     <br>
                 <input type="submit" value="Envoyer" class="button_submit">
                 <?php 
-                add_modify_img_avatar(); // va chercher la fonction qui controle l'ajout ou la modification d'image dans core/functions.php
+                add_modify_img_avatar(); // fonction permettant l'ajout ou la modification de l'avatar sur la page mon compte
                 ?>
             </form>
         </div>
     </div>
-    <div class="separator"></div>
-    <div class="infos_perso">
-        <h2>
-            Mes avis
-        </h2>
-        <p>
-            Vous trouverez ci-dessous vos commentaires et vos likes.
-        </p>
-    </div>
+    <br>
     </section>
-    <?php include("footer.php"); ?>
+    <?php include("footer.php"); ?> <!--  Charge le footer --->
 </body>
 </html>

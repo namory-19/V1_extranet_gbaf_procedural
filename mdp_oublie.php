@@ -8,7 +8,7 @@
     <title>Mot de passe oublié pour l'accès à l'extranet GBAF</title>
 </head>
 <body>
-    <?php include("header.php"); ?>
+    <?php include("header.php"); ?> <!--  Charge le header -->
     <section class="page_connexion_inscription">
         <div class="h1_connexion_inscription">
             <h1>
@@ -20,14 +20,14 @@
                     <div class="formulaire_identifiant">
                         <label for="identifiant">Identifiant : </label>
                         <br>
-                        <input type="text" id="identifiant" name="username" value="<?php echo isset($_POST['username'])? $_POST['username'] : ''?>" autofocus required>
+                        <input type="text" id="identifiant" name="username" value="<?php echo isset($_POST['username'])? $_POST['username'] : ''?>" autofocus required> <!-- champ pour l'identifiant avec préremplissage du champ avec les informations déjà remplis (en cas de rechargement du formulaire)-->
                     </div>
                     <br>
                     <?php
-                    if (isset($_POST['username']))
+                    if (isset($_POST['username'])) // vérifie si la variable est déclarée et est différente de null.
                     {
-                        require_once("core/database.php"); //ajoute le fichier database.php pour la connexion à la BDD
-                        $bdd=get_bdd(); // initialise la fonction get_bdd() puis la stocke dans la variable $bdd
+                        require_once("core/database.php"); //Charge le fichier permettant la connexion à la BDD
+                        $bdd=get_bdd(); // Fonction permettant l'accès à la BDD
                         $reponse = $bdd->prepare('SELECT username, question, reponse, password FROM user WHERE username = :username'); // va chercher dans la BDD la ligne corresponsant au username entré dans le formulaire de connexion
                         $reponse->execute(array(
                             'username' => $_POST['username'],
@@ -39,8 +39,9 @@
                             ?>
                             <div class="question">
                                 <p>
-                                    Répondez à la question suivante et saisissez votre nouveau mot de passe : <br><?php echo htmlspecialchars($donnees['question']) ?>
+                                    Répondez à la question suivante et saisissez votre nouveau mot de passe : <br><?php echo ($donnees['question']) ?>
                                 </p>
+                            </div>
                             <br>
                             <div class="reponse">
                                 <label for="reponse">Votre réponse : </label>
@@ -65,10 +66,10 @@
                             </div>
                             <br>
                             <?php
-                            if (isset($_POST['reponse']))
+                            if (isset($_POST['reponse'])) // si la réponse est présente
                             {
                                 $reponse_user = strtolower($_POST['reponse']); // passe la chaine de caractère (réponse) en minuscule
-                                if ($reponse_user === $donnees['reponse'])
+                                if ($reponse_user === $donnees['reponse']) // si la réponse saisie est identique à la réponse stockée en base
                                 {
                                     if ($_POST['password'] === $_POST['repassword']) // vérifie si les mots de passe entrés dans les deux champs sont identiques.
                                     {
@@ -77,7 +78,7 @@
                                         {
                                             $pass_hache = password_hash($_POST['password'], PASSWORD_DEFAULT); // crée une clé de hachage pour le mot de passe
                                             $reponse->closeCursor(); // libère la connexion au serveur, permettant ainsi à d'autres requêtes SQL d'être exécutées 
-                                            $reponse = $bdd->prepare('UPDATE user SET password = :password WHERE username = :username'); // insère tous les informations du formulaire en base dans la table "user"
+                                            $reponse = $bdd->prepare('UPDATE user SET password = :password WHERE username = :username'); // insère le nouveau mot de passe en base dans la table "user"
                                             $reponse->execute(array(
                                                 'password' => $pass_hache,
                                                 'username' => $_POST['username']
@@ -138,6 +139,6 @@
             Déjà inscrit? <a href="/connexion.php" target="_blank" rel="noopener noreferrer">Cliquez ici</a> pour vous connecter à l'extranet GBAF.
         </p>
     </section>
-    <?php include("footer.php"); ?>
+    <?php include("footer.php"); ?> <!--  Charge le footer -->
 </body>
 </html>

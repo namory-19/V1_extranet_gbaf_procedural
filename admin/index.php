@@ -1,7 +1,7 @@
 <?php
 session_start(); // On démarre la session pour récupérer les informations destinées au contôle de connexion 
-require_once('../core/admin_functions.php'); 
-verif_group_admin();
+require_once('../core/admin_functions.php'); // appelle le fichier permettant l'accès aux fonctions de l'admin.
+verif_group_admin(); // apelle la fonction permettant de récupérer l'id group pour l'affichage des éléments admin et d'autoriser ou non l'affichage
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -13,56 +13,29 @@ verif_group_admin();
     <title>Page d'administration de l'extranet GBAF</title>
 </head>
 <body>
-    <?php include("../header.php"); ?>
+    <?php include("../header.php"); ?> <!--  Charge le header -->
     <section class="home_about_admin_gbaf">
         <h1>
         Espace administrateur de l'Extranet de la GBAF
         </h1>
-        <p> Bienvenue sur l'espace d'administration de l'extranet GBAF! Vous pourrez ici effectuer toutes les modifications que vous souhaitez :
-        </p>
-            <ul>
-            <li>Visualiser, créer, modifier ou supprimer des fiches partenaires en <a href="admin_actors.php" target="_blank" rel="noopener noreferrer">cliquant ici</a></li>
-            <li>Visualiser créer, modifier ou supprimer des comptes utilisateurs en <a href="admin_users.php" target="_blank" rel="noopener noreferrer">cliquant ici</a></li>
-            <li>Visualiser créer, modifier ou supprimer des commentaires <a href="admin_comments.php" target="_blank" rel="noopener noreferrer">cliquant ici</a></li>
-            </ul>
+        <p> Bienvenue sur l'espace d'administration de l'extranet GBAF! <br>
         <p>Pour toutes questions sur l'utilisation de l'administration ou sur des problèmes, merci de contacter le super administrateur à <a href="mailto:admin@gbaf.fr">admin@gbaf.fr</a></p> 
-        </div>
     </section>  
     <section class="home_about_actors">
         <h2>
-        Les dernières fiches partenaires mise en ligne
+        Les fiches partenaires / acteurs en ligne
         </h2>
-        <p> 
-        Vous trouverez ci-dessous, les 5 dernières fiches acteurs et partenaires mise en ligne via l'administation de l'extranet GBAF.
+        <p>
+        Vous avez ici la possibilité de consulter de voir, de créer, de modifier ou encore de supprimer des fiches. <br>
+        Pour ajouter une nouvelle fiche acteur, il suffit simplement de <a href="admin_actors_add.php">Cliquez ici</a>.
+        </p>
+        <p>
+        Vous trouverez ci-dessous, les dernières fiches acteurs et partenaires mise en ligne via l'administration de l'extranet GBAF. Il vous est possible de les modifier ou de les supprimer en cliquant sur les liens.
         </p>
     </section>
-    <section class="home_bloc_actors">
-        <div class="home_bloc_actors_container">
-            <div class="home_logo_bloc_actors">
-                <img src="../img/logo_formation_co.png" alt="logo Formation&Co">
-            </div>
-            <div class="home_text_bloc_actors">
-                <h3>
-                    Formation&Co
-                </h3>
-                <p>
-                Formation&co est une association française présente sur tout le territoire.
-                Nous proposons à des personnes issues de tout milieu de devenir entrepreneur grâce à un ...
-                </p>
-            </div>
-            <div class="home_read_more_bloc_actors">
-            <a href="../acteurs.php" target="_blank" rel="noopener noreferrer"><div class="home_read_more_bloc_actors_button">Lire la suite</div></a>   
-            </div>
-        </div>
+    <section id="pagination_go">  
+        <?php select_actors_article_admin(); // appelle la fonction permettant d'afficher la totalité de la liste des article partenaire avec une pagination en bas de page ainsi que des liens pour supprimer ou modfier les fiches ?>
     </section>
-    <section class="home_about_actors">
-        <h2>
-        Les dernières inscription à l'extranet GBAF
-        </h2>
-        <p> 
-        Vous trouverez ci-dessous, les 5 dernières inscriptions à l'extranet GBAF.
-        </p>
-    </section>
-    <?php include("../footer.php"); ?>
+    <?php include("../footer.php"); ?> <!--  Charge le footer -->
 </body>
 </html>
